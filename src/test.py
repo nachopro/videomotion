@@ -9,11 +9,7 @@ class HomeHandler(tornado.web.RequestHandler):
         cameras = list_devices()
         data = {
             'count': len(cameras),
-            'devices': [{
-                    'name': c['name'],
-                    'device': c['device'],
-                    'url': '/device/%s' % c['device']
-                } for c in cameras]
+            'devices': [c for c in cameras]
         }
         self.write(data)
 
