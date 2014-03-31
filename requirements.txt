@@ -1,4 +1,2 @@
-argparse==1.2.1
-backports.ssl-match-hostname==3.4.0.2
 tornado==3.2
-wsgiref==0.1.2
+v4l2==0.2
