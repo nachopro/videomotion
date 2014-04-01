@@ -11,6 +11,7 @@ class WebCam(object):
     def __init__(self, *args, **kwargs):
         self._camara = '/dev/video0'
         self._fd = None
+        self._controles = []
 
     def _abrir(self):
         self._fd = open(self._camara, 'rw')
@@ -32,8 +33,12 @@ class WebCam(object):
                 assert e.errno == errno.EINVAL
                 queryctrl.id += 1
                 continue
+
+            print queryctrl.name
             yield queryctrl
             queryctrl = v4l2.v4l2_queryctrl(queryctrl.id + 1)
+
+        print '---'
 
         queryctrl.id = v4l2.V4L2_CID_PRIVATE_BASE
         while True:
@@ -42,6 +47,7 @@ class WebCam(object):
             except IOError, e:
                 assert e.errno == errno.EINVAL
                 break
+            print queryctrl.name
             yield queryctrl
             queryctrl = v4l2.v4l2_queryctrl(queryctrl.id + 1)
 
