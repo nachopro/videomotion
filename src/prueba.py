@@ -4,7 +4,12 @@
 #
 
 import v4l2
-import fcntl
+import errno
+from fcntl import ioctl
+
+
+def getdict(struct):
+    return dict((field, getattr(struct, field)) for field, _ in struct._fields_)
 
 
 class WebCam(object):
@@ -26,7 +31,7 @@ class WebCam(object):
     def controles(self):
         queryctrl = v4l2.v4l2_queryctrl(v4l2.V4L2_CID_BASE)
 
-        while queryctrl.id < v4l2.V4L2_CID_LASTP1:
+        while queryctrl.id < 10099999: #v4l2.V4L2_CID_LASTP1:
             try:
                 ioctl(self._fd, v4l2.VIDIOC_QUERYCTRL, queryctrl)
             except IOError, e:
@@ -34,8 +39,9 @@ class WebCam(object):
                 queryctrl.id += 1
                 continue
 
-            print queryctrl.name
-            yield queryctrl
+            control = getdict(queryctrl)
+            print control
+            #yield queryctrl
             queryctrl = v4l2.v4l2_queryctrl(queryctrl.id + 1)
 
         print '---'
@@ -48,9 +54,13 @@ class WebCam(object):
                 assert e.errno == errno.EINVAL
                 break
             print queryctrl.name
-            yield queryctrl
+            #yield queryctrl
             queryctrl = v4l2.v4l2_queryctrl(queryctrl.id + 1)
 
+
+a = WebCam()
+a._abrir()
+a.controles()
 
 #
 #vd = open('/dev/video0', 'rw')
