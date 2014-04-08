@@ -40,11 +40,9 @@ class WebCam(object):
                 continue
 
             control = getdict(queryctrl)
-            print control
-            #yield queryctrl
+            del(control['reserved'])
+            self._controles.append(control)
             queryctrl = v4l2.v4l2_queryctrl(queryctrl.id + 1)
-
-        print '---'
 
         queryctrl.id = v4l2.V4L2_CID_PRIVATE_BASE
         while True:
@@ -53,14 +51,18 @@ class WebCam(object):
             except IOError, e:
                 assert e.errno == errno.EINVAL
                 break
-            print queryctrl.name
-            #yield queryctrl
+
+            control = getdict(queryctrl)
+            del(control['reserved'])
+            self._controles.append(control)
             queryctrl = v4l2.v4l2_queryctrl(queryctrl.id + 1)
 
 
 a = WebCam()
 a._abrir()
 a.controles()
+
+print a._controles
 
 #
 #vd = open('/dev/video0', 'rw')
