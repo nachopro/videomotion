@@ -62,7 +62,8 @@ a = WebCam()
 a._abrir()
 a.controles()
 
-print a._controles
+import pprint
+print pprint.pprint(a._controles)
 
 #
 #vd = open('/dev/video0', 'rw')
