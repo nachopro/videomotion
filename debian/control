@@ -1,0 +1,11 @@
+Source: videomotion
+Maintainer: Ignacio Juan Martín Benedetti <tranceway@gmail.com>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 9)
+
+Package: videomotion
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, python-flask, python-opencv
+Description: Capturador de video
