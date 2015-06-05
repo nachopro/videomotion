@@ -1,6 +1,23 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Copyright 2015 Ignacio Juan Martín Benedetti <tranceway@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
 from fcntl import ioctl
 from lib import v4l2
 import errno
@@ -9,6 +26,38 @@ import glob
 
 def getdict(struct):
     return dict((field, getattr(struct, field)) for field, _ in struct._fields_)
+
+
+class Control(object):
+    def __init__(self, *args, **kwargs):
+        self.default = kwargs['default']
+        self.flags = kwargs['flags']
+        self.id = kwargs['id']
+        self.maximum = kwargs['maximum']
+        self.minimum = kwargs['minimum']
+        self.name = kwargs['name']
+        self.reserved = kwargs['reserved']
+        self.step = kwargs['step']
+        self.type = kwargs['type']
+
+    def get_value(self):
+        ctrl = v4l2.v4l2_control(self.id)
+        with open(self.path, 'rw') as fp:
+            ioctl(fp, v4l2.VIDIOC_G_CTRL, ctrl)
+
+        return getdict(ctrl)['value']
+
+    def set_value(self, value):
+        if value > self.maximum:
+            value = self.maximum
+
+        elif value < self.minimum:
+            value = self.minimum
+
+        with open(self.path, 'rw') as fp:
+            ioctl(fp, v4l2.VIDIOC_S_CTRL, v4l2.v4l2_control(self.id, value))
+
+    value = property(get_value, set_value)
 
 
 class Device(object):
@@ -30,6 +79,17 @@ class Device(object):
             self.card,
             self.path
         )
+
+    def set_control(self, control, value):
+        with open(self.path, 'rw') as fp:
+            ioctl(fp, v4l2.VIDIOC_S_CTRL, v4l2.v4l2_control(control, value))
+
+    def get_control(self, control):
+        ctrl = v4l2.v4l2_control(control)
+        with open(self.path, 'rw') as fp:
+            ioctl(fp, v4l2.VIDIOC_G_CTRL, ctrl)
+
+        print getdict(ctrl)
 
 
 class V4L2(object):
@@ -69,7 +129,7 @@ class V4L2(object):
                         continue
 
                 data = getdict(ctrl)
-                print data['name']
+                print data
                 id += 1
 
 
