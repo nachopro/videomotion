@@ -70,6 +70,7 @@ class Device(object):
         self.path = kwargs['path']
         #self.reserved = kwargs['reserved']
         self.version = kwargs['version']
+        self.controls = []
 
     def __unicode__(self):
         return unicode(self.__str__())
@@ -111,10 +112,13 @@ class V4L2(object):
                 'id': device.split('/')[-1]
             })
 
-            self.devices.append(Device(**data))
+            dev = Device(**data)
+            self._populate_controls(dev)
+
+            self.devices.append(dev)
 
     def _populate_controls(self, device):
-        with open(device, 'rw') as fp:
+        with open(device.path, 'rw') as fp:
 
             id = v4l2.V4L2_CID_USER_BASE
             while id < 10099999: #v4l2.V4L2_CID_LASTP1:
@@ -129,8 +133,15 @@ class V4L2(object):
                         continue
 
                 data = getdict(ctrl)
-                print data
+                device.controls.append(Control(**data))
+
                 id += 1
+                #
+
+    def get_device(self, dev_id):
+        for dev in self.devices:
+            if dev.id == dev_id:
+                return dev
 
 
 if __name__ == '__main__':
@@ -138,4 +149,4 @@ if __name__ == '__main__':
     #for d in a.devices:
     #    print d.__dict__
 
-    a._populate_controls('/dev/video0')
+    #a._populate_controls('/dev/video0')

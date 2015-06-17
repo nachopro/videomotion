@@ -10,6 +10,7 @@ import cv2
 import re
 
 JPEG_QUALITY = 95
+v = V4L2()
 
 app = Flask(__name__)
 
@@ -35,21 +36,38 @@ def stream(device_name):
 
     camera.release()
 
+@app.before_request
+def cameras_query():
+    g.v4l2 = v
+
+
 @app.route('/')
 def camera_list():
-    v = V4L2()
-    g.cameras = v
-    del(v)
-
     data = {
-        'cameras': [s.__dict__ for s in g.cameras.devices]
+        'cameras': []
     }
-    print data
+
+    for dev in g.v4l2.devices:
+        data['cameras'].append({
+            'bus_info': dev.bus_info,
+            'capabilities': dev.capabilities,
+            'card': dev.card,
+            'driver': dev.driver,
+            'id': dev.id,
+            'path': dev.path,
+            'version': dev.version
+        })
+
     return jsonify(**data)
 
-@app.route('/<device>/json')
+@app.route('/<device>')
 def camera_properties(device):
-    data = {'id': 123}
+    dev = g.v4l2.get_device(device)
+
+    data = {
+        'controls': [s.__dict__ for s in dev.controls]
+    }
+
     return jsonify(**data)
 
 @app.route('/<device>/mjpeg')
