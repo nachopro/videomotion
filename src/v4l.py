@@ -36,7 +36,7 @@ class Control(object):
         self.maximum = kwargs['maximum']
         self.minimum = kwargs['minimum']
         self.name = kwargs['name']
-        self.reserved = kwargs['reserved']
+        #self.reserved = kwargs['reserved']
         self.step = kwargs['step']
         self.type = kwargs['type']
 
@@ -68,7 +68,7 @@ class Device(object):
         self.driver = kwargs['driver']
         self.id = kwargs['id']
         self.path = kwargs['path']
-        self.reserved = kwargs['reserved']
+        #self.reserved = kwargs['reserved']
         self.version = kwargs['version']
 
     def __unicode__(self):
