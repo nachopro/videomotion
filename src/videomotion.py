@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
-from flask import Flask, Response, jsonify, g
+from flask import Flask, Response, jsonify, g, request
 from v4l import V4L2
+import os.path
 
 import cv
 import cv2
@@ -55,7 +56,9 @@ def camera_list():
             'driver': dev.driver,
             'id': dev.id,
             'path': dev.path,
-            'version': dev.version
+            'version': dev.version,
+            'info_url': os.path.join(request.url_root, dev.id),
+            'stream_url': os.path.join(request.url_root, dev.id, 'mjpeg')
         })
 
     return jsonify(**data)
@@ -79,4 +82,4 @@ def camera_stream(device):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=True,threaded=True)
